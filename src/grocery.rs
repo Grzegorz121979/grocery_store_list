@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::io::{self, Write};
 use std::fs::{File, OpenOptions};
-use csv::WriterBuilder;
+use csv::{WriterBuilder, Writer};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -23,7 +23,7 @@ pub fn append_product_to_list(path: &str) -> Result<(), Box<dyn Error>> {
     io::stdin().read_line(&mut quantity)?;
 
     let record = Record {
-        product: product.to_string(),
+        product: product.trim().to_string(),
         quantity: quantity.trim().parse()?,
     };
 
@@ -37,7 +37,7 @@ fn append_to_file(path: &str, record: &Record) -> Result<(), Box<dyn Error>> {
                                 .append(true)
                                 .open(path)?;
     
-    let mut writer: csv::Writer<File> = WriterBuilder::new().has_headers(false).from_writer(file);
+    let mut writer: Writer<File> = WriterBuilder::new().has_headers(false).from_writer(file);
 
     writer.serialize(record)?;
     writer.flush()?;
