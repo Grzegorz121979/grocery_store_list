@@ -61,6 +61,12 @@ pub fn print_grocery_list(path: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+#[allow(unused)]
+pub fn update_quantity(path: &str) -> Result<(), Box<dyn Error>> {
+    let mut map = add_file_to_hashmap(path);
+    Ok(())
+}
+
 pub fn add_file_to_hashmap(path: &str) -> Result<HashMap<String, u32>, Box<dyn Error>> {
     let mut map: HashMap<String, u32> = HashMap::new();
     let mut reader = Reader::from_path(path)?;
