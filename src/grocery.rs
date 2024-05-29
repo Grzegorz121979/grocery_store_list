@@ -47,8 +47,17 @@ fn append_to_file(path: &str, record: &Record) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn print_grocery_list(path: &str) -> Result<(), Box<dyn Error>> {
-    
-    
+    match add_file_to_hashmap(path) {
+        Ok(map) => {
+            let mut vec: Vec<_> = map.iter().collect();
+            vec.sort_by(|a, b| a.0.cmp(b.0));
+            for (product, quantity) in vec {
+                println!("{}: {}", product, quantity);
+            } 
+        },
+        Err(e) => eprintln!("Error reading CSV file: {}", e)
+    }
+
     Ok(())
 }
 
