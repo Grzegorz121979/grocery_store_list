@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         print!("Enter a - append product: ");
         io::stdout().flush()?;
         io::stdin().read_line(&mut user_input)?;
-        let user_input: &str = user_input.as_str().trim();
+        let user_input: &str = user_input.trim();
 
         match user_input {
             "a" => {

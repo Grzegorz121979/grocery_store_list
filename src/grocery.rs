@@ -1,8 +1,9 @@
 use std::error::Error;
 use std::io::{self, Write};
 use std::fs::{File, OpenOptions};
-use csv::{WriterBuilder, Writer};
+use csv::{WriterBuilder, Reader, Writer};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Record {
@@ -43,4 +44,22 @@ fn append_to_file(path: &str, record: &Record) -> Result<(), Box<dyn Error>> {
     writer.flush()?;
 
     Ok(())
+}
+
+pub fn print_grocery_list(path: &str) -> Result<(), Box<dyn Error>> {
+    
+    
+    Ok(())
+}
+
+pub fn add_file_to_hashmap(path: &str) -> Result<HashMap<String, u32>, Box<dyn Error>> {
+    let mut map: HashMap<String, u32> = HashMap::new();
+    let mut reader = Reader::from_path(path)?;
+
+    for row in reader.deserialize() {
+        let record: Record = row?;
+        map.insert(record.product, record.quantity);
+    }
+
+    Ok(map)
 }
