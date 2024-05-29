@@ -63,7 +63,32 @@ pub fn print_grocery_list(path: &str) -> Result<(), Box<dyn Error>> {
 
 #[allow(unused)]
 pub fn update_quantity(path: &str) -> Result<(), Box<dyn Error>> {
-    let mut map = add_file_to_hashmap(path);
+    let mut map = add_file_to_hashmap(path)?;
+
+    let mut product = String::new();
+    let mut new_quantity = String::new();
+
+    print!("Enter product: ");
+    io::stdout().flush()?;
+    io::stdin().read_line(&mut product)?;
+    let product = product.trim();
+
+    print!("Enter new quantity: ");
+    io::stdout().flush()?;
+    io::stdin().read_line(&mut new_quantity)?;
+    let new_quantity: u32 = new_quantity.trim().parse()?;
+
+    match map.get_mut(product) {
+        Some(quantity) => {
+            *quantity = new_quantity;
+        },
+        None => {
+            println!("Key {} not found", product);
+        }
+    };
+
+    add_file_to_csv(path, map);
+
     Ok(())
 }
 
@@ -77,4 +102,21 @@ pub fn add_file_to_hashmap(path: &str) -> Result<HashMap<String, u32>, Box<dyn E
     }
 
     Ok(map)
+}
+
+pub fn add_file_to_csv(path: &str, map: HashMap<String, u32>) -> Result<(), Box<dyn Error>> {
+    let mut writer = WriterBuilder::new().from_path(path)?;
+
+    for (product, quantity) in map {
+        let record = Record {
+            product: product.clone(),
+            quantity: quantity.clone(),
+        };
+
+        writer.serialize(record)?;
+    }
+
+    writer.flush()?;
+
+    Ok(())
 }
