@@ -2,8 +2,8 @@ use std::error::Error;
 use std::io::{self, Write};
 use std::fs::{File, OpenOptions};
 use csv::{WriterBuilder, Reader, Writer};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Record {
@@ -61,7 +61,6 @@ pub fn print_grocery_list(path: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-#[allow(unused)]
 pub fn update_quantity(path: &str) -> Result<(), Box<dyn Error>> {
     let mut map = add_file_to_hashmap(path)?;
 
@@ -87,9 +86,42 @@ pub fn update_quantity(path: &str) -> Result<(), Box<dyn Error>> {
         }
     };
 
-    add_file_to_csv(path, map);
+    match add_file_to_csv(path, map) {
+        Ok(()) => println!("Product were uptated"),
+        Err(e) => eprintln!("{}", e),
+    }
 
     Ok(())
+}
+
+pub fn remove_product(path: &str) -> Result<(), Box<dyn Error>> {
+    let map = add_file_hashmap(path);
+    add_file_to_csv(path, map)?;
+    Ok(())
+}
+
+pub fn add_file_hashmap(path: &str) -> HashMap<String, u32> {
+    let mut name = String::new();
+    println!("Enter name: ");
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut name).unwrap();
+    let name = name.trim();
+    let mut map: HashMap<String, u32> = HashMap::new();
+    let mut new_map: HashMap<String, u32> = HashMap::new();
+    let mut reader = Reader::from_path(path).unwrap();
+
+    for row in reader.deserialize() {
+        let record: Record = row.unwrap();
+        map.insert(record.product, record.quantity);
+    }
+
+    for (key, value) in map {
+        if key != name {
+           new_map.insert(key, value);
+        }
+    }
+
+    new_map
 }
 
 pub fn add_file_to_hashmap(path: &str) -> Result<HashMap<String, u32>, Box<dyn Error>> {
