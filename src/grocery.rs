@@ -95,12 +95,29 @@ pub fn update_quantity(path: &str) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn remove_product(path: &str) -> Result<(), Box<dyn Error>> {
-    let map = add_file_hashmap(path);
-    add_file_to_csv(path, map)?;
+    let mut name = String::new();
+    println!("Enter name: ");
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut name).unwrap();
+    let name = name.trim();
+    let mut new_map: HashMap<String, u32> = HashMap::new();
+    match add_file_to_hashmap(path) {
+        Ok(map) => {
+            for (key, value) in map {
+                if key != name {
+                   new_map.insert(key, value);
+                }
+            }
+        },
+        Err(e) => eprintln!("{}", e)
+    }
+
+    add_file_to_csv(path, new_map)?;
+    
     Ok(())
 }
 
-pub fn add_file_hashmap(path: &str) -> HashMap<String, u32> {
+/* pub fn add_file_hashmap(path: &str) -> HashMap<String, u32> {
     let mut name = String::new();
     println!("Enter name: ");
     io::stdout().flush().unwrap();
@@ -122,7 +139,7 @@ pub fn add_file_hashmap(path: &str) -> HashMap<String, u32> {
     }
 
     new_map
-}
+} */
 
 pub fn add_file_to_hashmap(path: &str) -> Result<HashMap<String, u32>, Box<dyn Error>> {
     let mut map: HashMap<String, u32> = HashMap::new();
