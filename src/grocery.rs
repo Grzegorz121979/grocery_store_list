@@ -117,29 +117,16 @@ pub fn remove_product(path: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/* pub fn add_file_hashmap(path: &str) -> HashMap<String, u32> {
-    let mut name = String::new();
-    println!("Enter name: ");
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut name).unwrap();
-    let name = name.trim();
-    let mut map: HashMap<String, u32> = HashMap::new();
-    let mut new_map: HashMap<String, u32> = HashMap::new();
-    let mut reader = Reader::from_path(path).unwrap();
+pub fn clear_list(path: &str) -> Result<(), io::Error> {
+    let file = OpenOptions::new()
+                    .write(true)
+                    .truncate(true)
+                    .open(path)?;
+        
+    file.set_len(0)?;
 
-    for row in reader.deserialize() {
-        let record: Record = row.unwrap();
-        map.insert(record.product, record.quantity);
-    }
-
-    for (key, value) in map {
-        if key != name {
-           new_map.insert(key, value);
-        }
-    }
-
-    new_map
-} */
+    Ok(())
+}
 
 pub fn add_file_to_hashmap(path: &str) -> Result<HashMap<String, u32>, Box<dyn Error>> {
     let mut map: HashMap<String, u32> = HashMap::new();
