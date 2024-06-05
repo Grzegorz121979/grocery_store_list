@@ -11,6 +11,12 @@ pub struct Record {
     pub quantity: u32,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Header {
+    pub product: String,
+    pub quantity: String,
+}
+
 pub fn append_product_to_list(path: &str) -> Result<(), Box<dyn Error>> {
     let mut product = String::new();
     let mut quantity = String::new();
@@ -41,6 +47,19 @@ fn append_to_file(path: &str, record: &Record) -> Result<(), Box<dyn Error>> {
     let mut writer: Writer<File> = WriterBuilder::new().has_headers(false).from_writer(file);
 
     writer.serialize(record)?;
+    writer.flush()?;
+
+    Ok(())
+}
+
+fn append_header(path: &str, header: &Header) -> Result<(), Box<dyn Error>> {
+    let file: File = OpenOptions::new()
+                                .append(true)
+                                .open(path)?;
+    
+    let mut writer: Writer<File> = WriterBuilder::new().has_headers(false).from_writer(file);
+
+    writer.serialize(header)?;
     writer.flush()?;
 
     Ok(())
@@ -117,13 +136,20 @@ pub fn remove_product(path: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn clear_list(path: &str) -> Result<(), io::Error> {
+pub fn clear_list(path: &str) -> Result<(), Box<dyn Error>> {
     let file = OpenOptions::new()
                     .write(true)
                     .truncate(true)
                     .open(path)?;
         
     file.set_len(0)?;
+
+    let header = Header {
+        product: String::from("product"),
+        quantity: String::from("quantity"),
+    };
+
+    append_header(path, &header)?;
 
     Ok(())
 }
