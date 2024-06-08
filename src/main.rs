@@ -50,7 +50,16 @@ fn main() -> Result<(), Box<dyn Error>> {
             },
             _ => ()
         }
-        break;
+        
+        let mut input = String::new();
+        print!("Continue (y/n): ");
+        io::stdout().flush()?;
+        io::stdin().read_line(&mut input)?;
+        let input = input.trim();
+
+        if input == "n" {
+            break;
+        }
     }
 
     println!("Exit");
