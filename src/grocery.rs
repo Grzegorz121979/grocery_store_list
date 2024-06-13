@@ -1,9 +1,10 @@
 use std::error::Error;
 use std::io::{self, Write};
 use std::fs::{File, OpenOptions};
-use csv::{WriterBuilder, Reader, Writer};
+use csv::{WriterBuilder, ReaderBuilder, Reader, Writer};
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use simple_excel_writer::Workbook;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Record {
@@ -116,8 +117,8 @@ pub fn update_quantity(path: &str) -> Result<(), Box<dyn Error>> {
 pub fn remove_product(path: &str) -> Result<(), Box<dyn Error>> {
     let mut name = String::new();
     println!("Enter name: ");
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut name).unwrap();
+    io::stdout().flush()?;
+    io::stdin().read_line(&mut name)?;
     let name = name.trim();
     let mut new_map: HashMap<String, u32> = HashMap::new();
     match add_file_to_hashmap(path) {
@@ -182,3 +183,30 @@ pub fn add_file_to_csv(path: &str, map: HashMap<String, u32>) -> Result<(), Box<
 
     Ok(())
 }
+
+pub fn convert_csv_to_excel(csv_path: &str, excel_path: &str) -> Result<(), Box<dyn Error>> {
+    let mut rdr = ReaderBuilder::new()
+        .has_headers(false)
+        .flexible(true)
+        .from_path(csv_path)?;
+
+    let mut wb = Workbook::create(excel_path);
+    let mut sheet = wb.create_sheet("Grocery");
+
+    wb.write_sheet(&mut sheet, |sw| {
+        for result in rdr.records() {
+            if let Ok(record) = result {
+                let mut row = simple_excel_writer::Row::new();
+                for field in record.iter() {
+                    row.add_cell(field);
+                }
+                sw.append_row(row)?;
+            }
+        }
+        Ok(())
+    })?;
+
+    wb.close()?;
+    
+    Ok(())
+} 
